@@ -20,10 +20,11 @@ public class ViaturaAdminController {
         this.adminService = adminService;
     }
 
-    // 1. CADASTRO/ATUALIZAÇÃO: Para "batizar" a viatura que apareceu no mapa
-    @PostMapping
-    public ResponseEntity<Viatura> cadastrar(@RequestBody @Valid ViaturaCadastroDTO dto) {
-        return ResponseEntity.ok(adminService.cadastrar(dto));
+    // 1. ATUALIZAÇÃO/BATISMO: Agora usando PUT para indicar modificação de recurso existente
+    @PutMapping("/{id}")
+    public ResponseEntity<Viatura> cadastrar(@PathVariable Long id, @RequestBody @Valid ViaturaCadastroDTO dto) {
+        // Garantimos que o ID da URL seja o mesmo do DTO para evitar inconsistência
+        return ResponseEntity.ok(adminService.cadastrar(id, dto));
     }
 
     // 2. LISTAGEM: Para ver o inventário completo da frota

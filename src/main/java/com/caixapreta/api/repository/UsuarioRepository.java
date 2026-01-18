@@ -2,6 +2,7 @@ package com.caixapreta.api.repository;
 
 import com.caixapreta.api.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
@@ -9,6 +10,8 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     // Busca um usuário pelo nome para conferir a senha no login
     Optional<Usuario> findByUsername(String username);
+
+
 
     /* * --- DOCUMENTAÇÃO DO USUARIO_REPOSITORY ---
      * 1. O QUE ELA FAZ:

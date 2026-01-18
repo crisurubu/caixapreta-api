@@ -38,11 +38,13 @@ public class ViaturaController {
         return ResponseEntity.ok(viaturaService.obterEstatisticasGerais());
     }
 
-    /* * --- DOCUMENTAÇÃO DO VIATURA_CONTROLLER ---
-     * 1. O QUE FAZ: Atua como a porta de entrada e saída (Gateway) da API Caixa Preta.
-     * 2. COMUNICAÇÃO DUAL: Gerencia o recebimento de dados brutos do hardware (ESP32)
-     * e a entrega de dados processados para a interface de usuário (React).
-     * 3. SEGURANÇA E ACESSO: Implementa a regra de @CrossOrigin para permitir que o
-     * Frontend consuma os dados sem bloqueios de política de segurança do navegador.
+   
+
+    /* * --- DOCUMENTAÇÃO DO VIATURA_CONTROLLER (GATEWAY) ---
+     * 1. O QUE FAZ: Atua como a porta de entrada (Hardware) e saída (Frontend) da API.
+     * 2. INTERFACE DE COMANDO: O novo endpoint 'desbloquear' permite que o operador humano
+     * retome o controle da viatura após a resolução de um sinistro (Acidente).
+     * 3. INTEGRAÇÃO REACT: Facilita a criação de botões de 'Reset' no Dashboard para
+     * limpar estados de erro ou bloqueios táticos de forma remota.
      */
 }

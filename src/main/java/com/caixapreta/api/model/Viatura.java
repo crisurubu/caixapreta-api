@@ -1,106 +1,103 @@
 package com.caixapreta.api.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "VIATURAS")
 public class Viatura {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Ex: VTR-04
+    private Long id;
 
-    // Dados de Cadastro (Obrigatórios para rodar)
+    // --- DADOS DE CADASTRO (Estáticos) ---
     private String placa;
     private String chassi;
     private String modelo;
     private String prefixo;
 
-    // Dados de Estado (Dinâmicos)
-    private String statusOperacional; // PATRULHA, ACIDENTE, etc.
-    private Boolean bloqueada;
+    // --- ESTADO TÁTICO (Define a COR no Mapa e Painel) ---
+    private String statusOperacional; // PATRULHANDO, EM_OCORRENCIA, ACIDENTE, ABORDAGEM
+    private Boolean bloqueada = false;
     private LocalDateTime ultimaAtualizacao;
-    private Boolean gpsValido = true; // Novo campo para o "Cérebro" usar
+
+    // --- ESTADO DE HARDWARE E TELEMETRIA (Cards e Diagnóstico) ---
+    private Boolean gpsValido = true;
+    private Double nivelBateria;
+
+    // --- NOVOS CAMPOS PARA ODÔMETRO E POSIÇÃO (Ajuste solicitado) ---
+    private Double latitude = 0.0;
+    private Double longitude = 0.0;
+
+    @Column(name = "odometro_manutencao")
+    private Double odometroManutencao = 0.0; // Acumulador vitalício (Nunca zera)
+
+    @Column(name = "km_diario_atual")
+    private Double kmDiarioAtual = 0.0;    // Contador que o Service zera diariamente
+
+    // Definimos um tamanho maior para suportar a concatenação de múltiplos alertas
+    @Column(length = 500)
+    private String alertaAdicional;
 
     @PrePersist @PreUpdate
     public void ajustarData() {
         this.ultimaAtualizacao = LocalDateTime.now();
     }
 
-    public Long getId() {
-        return id;
-    }
+    // --- GETTERS E SETTERS ATUALIZADOS ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getPlaca() { return placa; }
+    public void setPlaca(String placa) { this.placa = placa; }
 
-    public String getPlaca() {
-        return placa;
-    }
+    public String getChassi() { return chassi; }
+    public void setChassi(String chassi) { this.chassi = chassi; }
 
-    public void setPlaca(String placa) {
-        this.placa = placa;
-    }
+    public String getModelo() { return modelo; }
+    public void setModelo(String modelo) { this.modelo = modelo; }
 
-    public String getChassi() {
-        return chassi;
-    }
+    public String getPrefixo() { return prefixo; }
+    public void setPrefixo(String prefixo) { this.prefixo = prefixo; }
 
-    public void setChassi(String chassi) {
-        this.chassi = chassi;
-    }
+    public String getStatusOperacional() { return statusOperacional; }
+    public void setStatusOperacional(String statusOperacional) { this.statusOperacional = statusOperacional; }
 
-    public String getModelo() {
-        return modelo;
-    }
+    public Boolean getBloqueada() { return bloqueada != null && bloqueada; }
+    public void setBloqueada(Boolean bloqueada) { this.bloqueada = bloqueada; }
 
-    public void setModelo(String modelo) {
-        this.modelo = modelo;
-    }
+    public LocalDateTime getUltimaAtualizacao() { return ultimaAtualizacao; }
+    public void setUltimaAtualizacao(LocalDateTime ultimaAtualizacao) { this.ultimaAtualizacao = ultimaAtualizacao; }
 
-    public String getPrefixo() {
-        return prefixo;
-    }
+    public Boolean getGpsValido() { return gpsValido; }
+    public void setGpsValido(Boolean gpsValido) { this.gpsValido = gpsValido; }
 
-    public void setPrefixo(String prefixo) {
-        this.prefixo = prefixo;
-    }
+    public Double getNivelBateria() { return nivelBateria; }
+    public void setNivelBateria(Double nivelBateria) { this.nivelBateria = nivelBateria; }
 
-    public String getStatusOperacional() {
-        return statusOperacional;
-    }
+    public String getAlertaAdicional() { return alertaAdicional; }
+    public void setAlertaAdicional(String alertaAdicional) { this.alertaAdicional = alertaAdicional; }
 
-    public void setStatusOperacional(String statusOperacional) {
-        this.statusOperacional = statusOperacional;
-    }
+    // Novos Getters e Setters para a lógica de Quilometragem
+    public Double getLatitude() { return latitude != null ? latitude : 0.0; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
 
-    public Boolean getBloqueada() {
-        return bloqueada;
-    }
+    public Double getLongitude() { return longitude != null ? longitude : 0.0; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
 
-    public void setBloqueada(Boolean bloqueada) {
-        this.bloqueada = bloqueada;
-    }
+    public Double getOdometroManutencao() { return odometroManutencao != null ? odometroManutencao : 0.0; }
+    public void setOdometroManutencao(Double odometroManutencao) { this.odometroManutencao = odometroManutencao; }
 
-    public LocalDateTime getUltimaAtualizacao() {
-        return ultimaAtualizacao;
-    }
+    public Double getKmDiarioAtual() { return kmDiarioAtual != null ? kmDiarioAtual : 0.0; }
+    public void setKmDiarioAtual(Double kmDiarioAtual) { this.kmDiarioAtual = kmDiarioAtual; }
 
-    public void setUltimaAtualizacao(LocalDateTime ultimaAtualizacao) {
-        this.ultimaAtualizacao = ultimaAtualizacao;
-    }
-
-    public Boolean getGpsValido() {
-        return gpsValido;
-    }
-
-    public void setGpsValido(Boolean gpsValido) {
-        this.gpsValido = gpsValido;
-    }
-    /* --- DOCUMENTAÇÃO ---
-     * 1. O QUE FAZ: Une o registro físico do veículo ao seu estado lógico atual.
-     * 2. CAMPOS: 'placa' e 'chassi' são agora campos de auditoria obrigatórios.
+    /* * --- DOCUMENTAÇÃO DA ENTIDADE VIATURA (PRODUTO FINAL) ---
+     * 1. O QUE ELA FAZ: Atua como o "Estado Atual" (Single Source of Truth) de cada unidade da frota no banco de dados.
+     * 2. SEPARAÇÃO DE ESTADOS: Divide a informação em 'statusOperacional' (foco tático/visual) e 'alertaAdicional'
+     * (foco técnico/sensores), impedindo conflitos de prioridade entre telemetria e segurança.
+     * 3. INTEGRIDADE FÍSICA: Inclui campos de 'placa' e 'chassi' para vincular o dispositivo eletrônico a um veículo real.
+     * 4. PROTEÇÃO DE DADOS: O campo 'bloqueada' serve como um semáforo para o sistema de escrita, garantindo que
+     * evidências de acidentes não sejam sobrescritas por novos sinais de patrulha.
+     * 5. RESILIÊNCIA DE TELEMETRIA: Armazena o odômetro de manutenção e o km diário diretamente, permitindo a limpeza
+     * periódica da tabela de logs (Telemetria) sem perda dos acumuladores de quilometragem.
      */
 }

@@ -29,7 +29,7 @@ public class TelemetriaController {
         // --- MONITORAMENTO COMPLETO (Sincronizado com o DTO) ---
         System.out.println("\n[SISTEMA CAIXA-PRETA] 📥 NOVA TELEMETRIA");
         System.out.printf("VTR ID: %d | SIRENE/EVENTO: %s\n", dados.vtrId(), dados.statusSirene());
-        System.out.printf("METRICAS: %.1f km/h | %.2f G | Bat: %.1fV\n", dados.velocidade(), dados.gForce(), dados.bateria());
+        System.out.printf("METRICAS: %.1f km/h | %.2f G | Bat: %.1fV\n", dados.velocidade(), dados.gForce(), dados.nivelBateria());
         System.out.printf("ANGULOS: Lateral(X): %.1f° | Frontal(Y): %.1f°\n", dados.incX(), dados.incY());
         System.out.printf("GPS: Lat %.6f | Lng %.6f\n", dados.latitude(), dados.longitude());
         viaturaService.processarTelemetria(dados);

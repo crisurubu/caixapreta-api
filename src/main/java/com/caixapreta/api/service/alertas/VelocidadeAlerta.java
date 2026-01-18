@@ -9,14 +9,22 @@ public class VelocidadeAlerta implements AlertaProcessor {
 
     @Override
     public void processar(TelemetriaRequestDTO dados, Viatura vtr) {
-        // Alerta de excesso de velocidade acima de 100km/h
+        // 1. LÓGICA DE INFRAÇÃO (Sem mudar a cor do mapa)
         if (dados.velocidade() > 100) {
-            vtr.setStatusOperacional("ALTA_VELOCIDADE");
+            // Alimentamos o campo de alertas secundários para o Front exibir um "Badge"
+            vtr.setAlertaAdicional("ALTA_VELOCIDADE");
+        }
+        // 2. AUTO-LIMPEZA: Se a velocidade normalizou e o alerta era de velocidade, limpamos
+        else if ("ALTA_VELOCIDADE".equals(vtr.getAlertaAdicional())) {
+            vtr.setAlertaAdicional(null);
         }
     }
 
-    /* * --- DOCUMENTAÇÃO DO VELOCIDADE_ALERTA ---
-     * 1. O QUE FAZ: Monitora se o condutor está excedendo o limite de segurança.
-     * 2. OBSERVAÇÃO: Este status pode ser sobrescrito se houver um ACIDENTE.
+    /* * --- DOCUMENTAÇÃO DO VELOCIDADE_ALERTA (REVISADO) ---
+     * 1. O QUE FAZ: Monitora infrações de trânsito em tempo real.
+     * 2. HIERARQUIA: Não interfere no statusOperacional, permitindo que a cor da viatura
+     * no mapa represente apenas o estado tático ou de segurança (Missão).
+     * 3. FEEDBACK VISUAL: No Dashboard, o operador verá a cor da viatura e uma
+     * notificação de 'Excesso de Velocidade' simultaneamente.
      */
 }

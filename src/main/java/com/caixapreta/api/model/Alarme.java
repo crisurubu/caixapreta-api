@@ -13,33 +13,36 @@ public class Alarme {
     private Long id;
 
     @Column(unique = true, nullable = false, updatable = false)
-    private String uuid; // Identificador único e imutável para o Laudo PDF
+    private String uuid;
 
     @ManyToOne
     @JoinColumn(name = "viatura_id")
     private Viatura viatura;
 
-    private String tipoEvento; // ACIDENTE, EMERGENCIA, ABORDAGEM, MANUTENCAO
+    private String tipoEvento;
     private Double gForce;
     private Double velocidade;
     private Double latitude;
     private Double longitude;
     private LocalDateTime dataHora;
 
+    // --- NOVOS CAMPOS IMPLEMENTADOS PARA O LAUDO ---
+    private Double incX;           // Inclinação lateral no momento do alarme
+    private Double nivelBateria;   // Voltagem da bateria capturada no impacto
+    private String endereco;       // Endereço textual resolvido via GPS
+
     @PrePersist
     protected void onCreate() {
-        // Gera automaticamente o UUID e a data antes de salvar no banco
-        this.uuid = UUID.randomUUID().toString();
-        this.dataHora = LocalDateTime.now();
+        // Garante a geração do UUID e data se ainda não foram setados manualmente
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID().toString();
+        }
+        if (this.dataHora == null) {
+            this.dataHora = LocalDateTime.now();
+        }
     }
 
-    /* * --- DOCUMENTAÇÃO DO MODEL ALARME ---
-     * 1. O QUE FAZ: Registra eventos críticos que exigem perícia posterior.
-     * 2. SEGURANÇA: Usa UUID em vez de ID sequencial para links externos de laudos.
-     * 3. INTEGRIDADE: O uso de @PrePersist garante que a marca temporal seja do servidor.
-     */
-
-    // Getters e Setters Manuais (Padrão sem Lombok)
+    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getUuid() { return uuid; }
@@ -58,4 +61,22 @@ public class Alarme {
     public void setLongitude(Double longitude) { this.longitude = longitude; }
     public LocalDateTime getDataHora() { return dataHora; }
     public void setDataHora(LocalDateTime dataHora) { this.dataHora = dataHora; }
+
+    // Implementação dos novos Getters e Setters
+    public Double getIncX() { return incX; }
+    public void setIncX(Double incX) { this.incX = incX; }
+    public Double getNivelBateria() { return nivelBateria; }
+    public void setNivelBateria(Double nivelBateria) { this.nivelBateria = nivelBateria; }
+    public String getEndereco() { return endereco; }
+    public void setEndereco(String endereco) { this.endereco = endereco; }
+
 }
+
+/**
+ * --- DOCUMENTAÇÃO DO MODEL ALARME (ATUALIZADA) ---
+ * 1. O QUE FAZ: Funciona como a "Caixa-Preta" do veículo, persistindo eventos críticos.
+ * 2. NOVOS CAMPOS: Adicionado 'incX', 'nivelBateria' e 'endereco' para garantir que o laudo
+ * pericial tenha todos os dados técnicos sem depender da tabela volátil de Viaturas.
+ * 3. IDENTIDADE: O UUID é o elo de ligação entre o banco de dados e o PDF de auditoria.
+ * 4. PERSISTÊNCIA: O uso de @PrePersist automatiza a segurança temporal e a unicidade do registro.
+ */

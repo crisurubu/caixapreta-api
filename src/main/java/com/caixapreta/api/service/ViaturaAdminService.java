@@ -18,32 +18,30 @@ public class ViaturaAdminService {
     }
 
     @Transactional
-    public Viatura cadastrar(ViaturaCadastroDTO dto) {
-        // LÓGICA DE ATUALIZAÇÃO OU CRIAÇÃO:
-        // Se o DTO trouxer um ID que já existe (auto-provisionado), nós buscamos ela.
-        // Se não, criamos uma nova do zero.
-        Viatura vtr = (dto.id() != null)
-                ? viaturaRepository.findById(dto.id()).orElse(new Viatura())
-                : new Viatura();
+    public Viatura cadastrar(Long id, ViaturaCadastroDTO dto) {
+        Viatura vtr = viaturaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Viatura não encontrada!"));
 
         vtr.setPlaca(dto.placa());
         vtr.setChassi(dto.chassi());
         vtr.setModelo(dto.modelo());
         vtr.setPrefixo(dto.prefixo());
 
-        // Mantemos o status que ela já tiver (se já estiver online) ou definimos OFFLINE
-        if (vtr.getStatusOperacional() == null) {
-            vtr.setStatusOperacional("OFFLINE");
-            vtr.setBloqueada(false);
-        }
+        // LINHA ESSENCIAL: Muda o status para ela sair do "berçário" e ir para o Dashboard
+        vtr.setStatusOperacional("PATRULHANDO");
 
         return viaturaRepository.save(vtr);
     }
 
+    // Retorna a lista completa de viaturas cadastradas no sistema
     public List<Viatura> listarTodas() {
+        // Usamos o findAll do JPA para trazer todos os registros da tabela VIATURAS
         return viaturaRepository.findAll();
     }
-
+    // Retorna apenas as viaturas que ainda não foram "batizadas"
+    public List<Viatura> listarPendentes() {
+        return viaturaRepository.findByStatusOperacional("PENDENTE_CADASTRO");
+    }
     /* * --- DOCUMENTAÇÃO DO VIATURA_ADMIN_SERVICE ---
      * 1. O QUE FAZ: Centraliza a gestão cadastral das viaturas da frota.
      * 2. SUPORTE AO BATISMO: Permite atualizar viaturas que foram criadas automaticamente

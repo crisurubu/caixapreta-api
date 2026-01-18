@@ -2,25 +2,33 @@ package com.caixapreta.api.dto;
 
 import java.time.LocalDateTime;
 
-/**
- * Este DTO une os dados físicos (Telemetria) com a inteligência (Status)
- * para que o Frontend não precise fazer cálculos, apenas exibir.
- */
 public record ViaturaPainelDTO(
         Long id,
-        String prefixo,         // Adicionado para identificar a VTR no mapa
+        String prefixo,
         Double velocidade,
         Double latitude,
         Double longitude,
-        String statusOperacional, // Cor do Card/Ícone
-        String statusSirene,     // Texto do hardware
+        String statusOperacional,
+        String statusSirene,
         LocalDateTime ultimaAtualizacao,
-        Boolean bloqueada        // Adicionado para a trava de acidente
-) {
-    /* --- DOCUMENTAÇÃO DO VIATURA_PAINEL_DTO ---
-     * 1. O QUE ELE FAZ: Unifica o Hardware (Telemetria) e o Software (Status) em um único JSON.
-     * 2. SINCRONISMO: Os nomes dos campos devem bater exatamente com o 'new ViaturaPainelDTO'
-     * chamado no ViaturaService para evitar erros de compilação.
-     * 3. FINALIDADE: Entrega para o Dashboard tudo o que é necessário para renderizar o estado tático.
-     */
-}
+        Boolean bloqueada,
+        String alertaAdicional,
+        Double nivelBateria,
+        Boolean gpsValido,
+        Double incX,
+        Double forcaG,
+        Double kmDiario,       // <--- KM percorrido apenas hoje
+        Double odometroTotal,  // <--- Quilometragem total para manutenção
+        String endereco
+) {}
+
+/**
+ * --- O QUE ESTE CÓDIGO FAZ ---
+ * 1. TRANSPORTE DE DADOS: Atua como a ponte entre o servidor e o Painel React,
+ * entregando os dados já processados.
+ * 2. SEGREGAÇÃO DE MÉTRICAS: Separa explicitamente o 'kmDiario' do 'odometroTotal',
+ * permitindo que o usuário veja quanto a viatura rodou no turno atual e
+ * quanto falta para a próxima revisão técnica.
+ * 3. GEOPROCESSAMENTO: Inclui o campo 'endereco' já resolvido pelo GeocodingService,
+ * poupando o Frontend de fazer requisições extras de mapa.
+ */

@@ -1,25 +1,47 @@
 package com.caixapreta.api.controller;
 
+import com.caixapreta.api.config.TokenService;
+import com.caixapreta.api.model.Usuario;
+import com.caixapreta.api.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173") // Permite que o React acesse
+@CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
+
+    @Autowired
+    private UsuarioRepository repository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private TokenService tokenService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
-        String usuario = credentials.get("username");
-        String senha = credentials.get("password");
+        String username = credentials.get("username");
+        String password = credentials.get("password");
 
-        // Validação Simples (Substitua por busca no banco depois)
-        if ("admin".equals(usuario) && "admin123".equals(senha)) {
-            // Simulando um Token de acesso
+        // 1. Busca real no banco de dados (que o Seeder criou)
+        Usuario usuario = repository.findByUsername(username)
+                .orElse(null);
+
+        // 2. Valida a senha usando o sistema de criptografia
+        if (usuario != null && passwordEncoder.matches(password, usuario.getPassword())) {
+
+            // 3. GERA O TOKEN REAL (JWT)
+            String token = tokenService.generateToken(usuario);
+
             return ResponseEntity.ok(Map.of(
-                    "token", "token-gerado-caixa-preta-2026",
-                    "user", usuario
+                    "token", token,
+                    "user", usuario.getUsername(),
+                    "roles", usuario.getRoles()
             ));
         }
 

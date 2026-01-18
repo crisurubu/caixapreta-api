@@ -4,18 +4,26 @@ import java.time.LocalDateTime;
 
 public record ViaturaResponseDTO(
         Long vtrId,
-        String statusOperacional,
-        Boolean bloqueada,
+        String prefixo,           // Necessário para identificação no Card
+        String statusOperacional, // TOMBAMENTO, ACIDENTE, PATRULHANDO, etc.
+        Boolean bloqueada,        // Status da trava
+        Boolean gpsValido,        // Para o ícone de satélite
         Double velocidade,
         Double latitude,
         Double longitude,
+        Double nivelBateria,      // Para o sensor de bateria
+        Double incX,              // DADO REAL: Inclinação para o carrinho girar
+        Double gForce,            // DADO REAL: Para o gráfico de impacto
+        String statusSirene,      // ON/OFF
+        Double odometro,          // Kilometragem total
         LocalDateTime ultimaAtualizacao
 ) {
-    /* --- DOCUMENTAÇÃO DO VIATURA_RESPONSE_DTO ---
+    /* --- DOCUMENTAÇÃO DO VIATURA_RESPONSE_DTO ROBUSTO ---
      * 1. O QUE ELE FAZ:
-     * Simplifica os dados para o Frontend. O React não precisa ver os eixos X e Y
-     * brutos, ele só precisa saber o Status e a Posição para pintar o ícone no mapa.
-     * 2. EXPLICAÇÃO:
-     * - ultimaAtualizacao: Informa ao operador há quanto tempo a VTR não envia sinal.
+     * Agora ele NÃO simplifica demais. Ele entrega a telemetria bruta necessária
+     * para o VehicleCard processar inclinação real e força G.
+     * * 2. POR QUE MUDOU:
+     * O React precisa do 'incX' para rotacionar o ícone do carro no MapaCard
+     * e do 'gForce' para alimentar o gráfico de telemetria.
      */
 }

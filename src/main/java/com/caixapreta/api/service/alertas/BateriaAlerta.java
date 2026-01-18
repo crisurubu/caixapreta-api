@@ -9,14 +9,24 @@ public class BateriaAlerta implements AlertaProcessor {
 
     @Override
     public void processar(TelemetriaRequestDTO dados, Viatura vtr) {
-        // Alerta se a bateria do módulo estiver abaixo de 15%
-        if (dados.bateria() < 15) {
-            vtr.setStatusOperacional("BATERIA_BAIXA");
+        // 1. Atualizamos o nível numérico para o gráfico do Front-end
+        vtr.setNivelBateria(dados.nivelBateria());
+
+        // 2. LÓGICA DE ALERTA (Sem mudar a cor do mapa)
+        if (dados.nivelBateria() < 15) {
+            // Alimentamos o campo de alertas secundários
+            vtr.setAlertaAdicional("BATERIA_BAIXA");
+        }
+        // Se a bateria subiu (carregou), limpamos o alerta adicional
+        else if ("BATERIA_BAIXA".equals(vtr.getAlertaAdicional())) {
+            vtr.setAlertaAdicional(null);
         }
     }
 
-    /* * --- DOCUMENTAÇÃO DO BATERIA_ALERTA ---
-     * 1. O QUE FAZ: Monitora a saúde energética do hardware.
-     * 2. IMPACTO: Evita que a viatura fique "invisível" no mapa por falta de energia.
+    /* * --- DOCUMENTAÇÃO DO BATERIA_ALERTA (REVISADO) ---
+     * 1. O QUE FAZ: Monitora a tensão do hardware (ESP32) sem interferir no status tático.
+     * 2. SEPARAÇÃO DE ESTADOS: O status 'BATERIA_BAIXA' agora é um 'alertaAdicional'.
+     * 3. RESULTADO VISUAL: A viatura mantém sua cor de operação (Verde/Roxo/Vermelho)
+     * no mapa, mas exibe um ícone de aviso no detalhamento técnico do Dashboard.
      */
 }

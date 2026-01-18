@@ -5,7 +5,8 @@ public record DashboardStatsDTO(
         long acidente,
         long patrulha,
         long abordagem,
-        long manutencao
+        long manutencao,
+        long analise
 ) {
     /* O QUE FAZ: Entrega os totais prontos para os gráficos do Frontend. */
 }
