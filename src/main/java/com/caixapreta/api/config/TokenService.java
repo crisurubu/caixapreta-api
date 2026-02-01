@@ -20,9 +20,13 @@ public class TokenService {
     public String generateToken(Usuario usuario){
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
+
+            // Log de segurança para você ver no console se o nome está chegando
+            System.out.println(">>> [TOKEN] Gerando para o usuário: " + usuario.getUsername());
+
             return JWT.create()
                     .withIssuer("caixa-preta-api")
-                    .withSubject(usuario.getUsername()) // Verifique se no seu Model é getLogin()
+                    .withSubject(usuario.getUsername())
                     .withExpiresAt(genExpirationDate())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {

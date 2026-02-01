@@ -12,7 +12,9 @@ public class Alarme {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false, updatable = false)
+    // REMOVIDO o unique=true para permitir que múltiplos logs (Tombamento + Solicitação)
+    // compartilhem o mesmo UUID de Incidente.
+    @Column(nullable = false, updatable = false)
     private String uuid;
 
     @ManyToOne
@@ -26,14 +28,15 @@ public class Alarme {
     private Double longitude;
     private LocalDateTime dataHora;
 
-    // --- NOVOS CAMPOS IMPLEMENTADOS PARA O LAUDO ---
-    private Double incX;           // Inclinação lateral no momento do alarme
-    private Double nivelBateria;   // Voltagem da bateria capturada no impacto
-    private String endereco;       // Endereço textual resolvido via GPS
+    private Double incX;
+    private Double incY;
+    private Double nivelBateria;
+    private String endereco;
 
     @PrePersist
     protected void onCreate() {
-        // Garante a geração do UUID e data se ainda não foram setados manualmente
+        // Agora o Service tentará setar o UUID antes.
+        // Se chegar aqui sem UUID, ele gera um novo (início de um novo incidente).
         if (this.uuid == null) {
             this.uuid = UUID.randomUUID().toString();
         }
@@ -42,7 +45,7 @@ public class Alarme {
         }
     }
 
-    // Getters e Setters
+    // --- Getters e Setters mantidos conforme seu código ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getUuid() { return uuid; }
@@ -61,17 +64,15 @@ public class Alarme {
     public void setLongitude(Double longitude) { this.longitude = longitude; }
     public LocalDateTime getDataHora() { return dataHora; }
     public void setDataHora(LocalDateTime dataHora) { this.dataHora = dataHora; }
-
-    // Implementação dos novos Getters e Setters
     public Double getIncX() { return incX; }
     public void setIncX(Double incX) { this.incX = incX; }
+    public Double getIncY() { return incY; }
+    public void setIncY(Double incY) { this.incY = incY; }
     public Double getNivelBateria() { return nivelBateria; }
     public void setNivelBateria(Double nivelBateria) { this.nivelBateria = nivelBateria; }
     public String getEndereco() { return endereco; }
     public void setEndereco(String endereco) { this.endereco = endereco; }
-
 }
-
 /**
  * --- DOCUMENTAÇÃO DO MODEL ALARME (ATUALIZADA) ---
  * 1. O QUE FAZ: Funciona como a "Caixa-Preta" do veículo, persistindo eventos críticos.

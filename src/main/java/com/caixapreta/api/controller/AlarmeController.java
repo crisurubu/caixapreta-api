@@ -17,16 +17,29 @@ public class AlarmeController {
         this.alarmeRepository = alarmeRepository;
     }
 
-    // CORREÇÃO: O @PathVariable agora é String
     @GetMapping("/viatura/{id}")
     public ResponseEntity<List<Alarme>> listarPorViatura(@PathVariable Long id) {
         return ResponseEntity.ok(alarmeRepository.findByViaturaIdOrderByDataHoraDesc(id));
     }
 
-    @GetMapping("/detalhe/{uuid}")
-    public ResponseEntity<Alarme> buscarPorUuid(@PathVariable String uuid) {
-        return alarmeRepository.findByUuid(uuid)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    // ALTERADO: Agora retorna uma LISTA de alarmes para o mesmo UUID
+    // Isso permite que o Frontend mostre todos os logs (impactos) do mesmo laudo
+    @GetMapping("/dossie/{uuid}")
+    public ResponseEntity<List<Alarme>> buscarDossieCompleto(@PathVariable String uuid) {
+        // O Repository agora retorna uma List, não mais um Optional
+        List<Alarme> logs = alarmeRepository.findAllByUuidOrderByDataHoraAsc(uuid);
+
+        if (logs == null || logs.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(logs);
+    }
+
+    @DeleteMapping("/reset-pericial")
+    public ResponseEntity<String> resetarSimulacao() {
+        alarmeRepository.deleteAll();
+        System.out.println(">>> SISTEMA REINICIADO: Aguardando nova simulação...");
+        return ResponseEntity.ok("MEMÓRIA ZERADA");
     }
 }

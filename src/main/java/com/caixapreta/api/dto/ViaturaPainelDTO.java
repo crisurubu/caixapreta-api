@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 public record ViaturaPainelDTO(
         Long id,
         String prefixo,
+        String placa,   // <--- ADICIONAR
+        String modelo,  // <--- ADICIONAR
+        String chassi,  // <--- ADICIONAR
         Double velocidade,
         Double latitude,
         Double longitude,

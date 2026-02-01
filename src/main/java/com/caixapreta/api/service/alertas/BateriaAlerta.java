@@ -9,19 +9,20 @@ public class BateriaAlerta implements AlertaProcessor {
 
     @Override
     public void processar(TelemetriaRequestDTO dados, Viatura vtr) {
-        // 1. Atualizamos o nível numérico para o gráfico do Front-end
+        // 1. Atualizamos o nível numérico
         vtr.setNivelBateria(dados.nivelBateria());
 
-        // 2. LÓGICA DE ALERTA (Sem mudar a cor do mapa)
-        if (dados.nivelBateria() < 15) {
-            // Alimentamos o campo de alertas secundários
+        // 2. LÓGICA DE ALERTA CALIBRADA PARA 12V
+        // 12.98V é carga cheia. Vamos alertar apenas abaixo de 11.5V.
+        if (dados.nivelBateria() > 0 && dados.nivelBateria() < 11.5) {
             vtr.setAlertaAdicional("BATERIA_BAIXA");
         }
-        // Se a bateria subiu (carregou), limpamos o alerta adicional
-        else if ("BATERIA_BAIXA".equals(vtr.getAlertaAdicional())) {
+        // Se a bateria estiver acima de 11.8V (margem de segurança) e tinha alerta, limpamos
+        else if (dados.nivelBateria() >= 11.8 && "BATERIA_BAIXA".equals(vtr.getAlertaAdicional())) {
             vtr.setAlertaAdicional(null);
         }
     }
+
 
     /* * --- DOCUMENTAÇÃO DO BATERIA_ALERTA (REVISADO) ---
      * 1. O QUE FAZ: Monitora a tensão do hardware (ESP32) sem interferir no status tático.

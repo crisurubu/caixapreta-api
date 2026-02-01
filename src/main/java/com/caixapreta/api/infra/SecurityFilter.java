@@ -22,20 +22,32 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var token = this.recoverToken(request);
+        // LOG ZERO: Verificação de chegada
+        System.out.println(">>> [FILTRO] Rota acessada: " + request.getRequestURI());
+        System.out.println(">>> [FILTRO] Token recebido: " + (token != null ? "SIM" : "NÃO"));
+
         if(token != null){
             var subject = tokenService.validateToken(token);
+            // LOG 1: Verificar o que o Token diz
+            System.out.println(">>> [FILTRO] Token validado. Subject extraído: " + subject);
 
-            // Buscamos o Optional e já extraímos o usuário com .orElse(null)
-            Usuario user = usuarioRepository.findByUsername(subject).orElse(null);
+            if (subject != null) {
+                Usuario user = usuarioRepository.findByUsername(subject).orElse(null);
 
-            if(user != null) {
-                // Agora o 'user' é do tipo correto e o Spring aceita
-                var authentication = new UsernamePasswordAuthenticationToken(user, null, null);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                if(user != null) {
+                    // LOG 2: Usuário encontrado
+                    System.out.println(">>> [FILTRO] Usuário encontrado no Banco: " + user.getUsername());
+                    System.out.println(">>> [FILTRO] Autoridades do Usuário: " + user.getAuthorities());
+
+                    var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else {
+                    // LOG 3: O erro provável está aqui
+                    System.out.println(">>> [FILTRO] ERRO: Usuário '" + subject + "' não existe na tabela USUARIOS!");
+                }
             }
         }
         filterChain.doFilter(request, response);

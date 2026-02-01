@@ -15,6 +15,7 @@ public class ViaturaPendente {
     private LocalDateTime ultimaTentativa;
     private Double latitude;
     private Double longitude;
+    private Double nivelBateria; // ✅ ADICIONADO: Para capturar a bateria no radar
     private String observacao; // "Aguardando aprovação do ADM"
 
     // Construtor padrão exigido pelo JPA
@@ -32,6 +33,10 @@ public class ViaturaPendente {
 
     public Double getLongitude() { return longitude; }
     public void setLongitude(Double longitude) { this.longitude = longitude; }
+
+    // ✅ NOVO GETTER E SETTER
+    public Double getNivelBateria() { return nivelBateria; }
+    public void setNivelBateria(Double nivelBateria) { this.nivelBateria = nivelBateria; }
 
     public String getObservacao() { return observacao; }
     public void setObservacao(String observacao) { this.observacao = observacao; }

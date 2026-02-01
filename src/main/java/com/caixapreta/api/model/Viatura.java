@@ -10,9 +10,12 @@ public class Viatura {
     private Long id;
 
     // --- DADOS DE CADASTRO (Estáticos) ---
+    @Column(unique = true, nullable = false)
     private String placa;
+    @Column(unique = true, nullable = false)
     private String chassi;
     private String modelo;
+    @Column(unique = true, nullable = false)
     private String prefixo;
 
     // --- ESTADO TÁTICO (Define a COR no Mapa e Painel) ---

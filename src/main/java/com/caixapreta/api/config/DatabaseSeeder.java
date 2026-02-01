@@ -25,7 +25,8 @@ public class DatabaseSeeder {
                 Usuario admin = new Usuario();
                 admin.setUsername("admin");
                 admin.setPassword(encoder.encode("admin123"));
-                admin.setRoles(Set.of("ADMIN"));
+                // No seu DatabaseSeeder.java, mude esta linha:
+                admin.setRoles(Set.of("ADMIN", "HARDWARE")); // Adicione o HARDWARE aqui
                 userRepo.save(admin);
 
                 System.out.println("==============================================");
@@ -39,10 +40,11 @@ public class DatabaseSeeder {
                 vtrTeste.setId(1L);
                 vtrTeste.setPrefixo("ROTA-01");
                 vtrTeste.setPlaca("BRA2E26");
+                vtrTeste.setChassi("CHASSI_TESTE_001");
                 vtrTeste.setModelo("Toyota Hilux");
                 vtrTeste.setStatusOperacional("PATRULHANDO");
                 vtrTeste.setBloqueada(false);
-                vtrTeste.setNivelBateria(100.0);
+                vtrTeste.setNivelBateria(12.0);
 
                 // --- INICIALIZAÇÃO DOS NOVOS CAMPOS (Evita NullPointerException) ---
                 vtrTeste.setOdometroManutencao(0.0);

@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/viaturas")
-@CrossOrigin(origins = "http://localhost:5173") // Porta padrão do Vite/React
+@CrossOrigin(origins = "*", allowedHeaders = "*")// Porta padrão do Vite/React
 public class ViaturaController {
 
     private final ViaturaService viaturaService;

@@ -28,15 +28,21 @@ public class AuthController {
         String username = credentials.get("username");
         String password = credentials.get("password");
 
-        // 1. Busca real no banco de dados (que o Seeder criou)
-        Usuario usuario = repository.findByUsername(username)
-                .orElse(null);
+        System.out.println(">>> [AUTH] Tentativa de login para: " + username);
 
-        // 2. Valida a senha usando o sistema de criptografia
+        Usuario usuario = repository.findByUsername(username).orElse(null);
+
         if (usuario != null && passwordEncoder.matches(password, usuario.getPassword())) {
 
-            // 3. GERA O TOKEN REAL (JWT)
+            // VERIFICAÇÃO DE SEGURANÇA:
+            if (usuario.getUsername() == null || usuario.getUsername().isEmpty()) {
+                System.out.println(">>> [ERRO FATAL] Usuário encontrado no banco, mas o campo USERNAME está VAZIO!");
+                return ResponseEntity.status(500).body("Erro interno: Nome de usuário não carregado.");
+            }
+
             String token = tokenService.generateToken(usuario);
+
+            System.out.println(">>> [AUTH] Login Sucesso! Token gerado para: " + usuario.getUsername());
 
             return ResponseEntity.ok(Map.of(
                     "token", token,
@@ -47,4 +53,5 @@ public class AuthController {
 
         return ResponseEntity.status(401).body("Usuário ou senha inválidos");
     }
+
 }

@@ -2,8 +2,10 @@ package com.caixapreta.api.controller;
 
 import com.caixapreta.api.dto.ViaturaCadastroDTO;
 import com.caixapreta.api.model.Viatura;
+import com.caixapreta.api.model.ViaturaPendente;
 import com.caixapreta.api.service.ViaturaAdminService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,24 +22,36 @@ public class ViaturaAdminController {
         this.adminService = adminService;
     }
 
-    // 1. ATUALIZAÇÃO/BATISMO: Agora usando PUT para indicar modificação de recurso existente
-    @PutMapping("/{id}")
-    public ResponseEntity<Viatura> cadastrar(@PathVariable Long id, @RequestBody @Valid ViaturaCadastroDTO dto) {
-        // Garantimos que o ID da URL seja o mesmo do DTO para evitar inconsistência
-        return ResponseEntity.ok(adminService.cadastrar(id, dto));
+    @GetMapping("/pendentes")
+    public ResponseEntity<List<ViaturaPendente>> listarPendentes() {
+        return ResponseEntity.ok(adminService.listarPendentes());
     }
 
-    // 2. LISTAGEM: Para ver o inventário completo da frota
+    // 1. ATUALIZAÇÃO/BATISMO COM TRATAMENTO DE ERROS (BLINDAGEM)
+    @PutMapping("/{id}")
+    public ResponseEntity<?> cadastrar(@PathVariable Long id, @RequestBody @Valid ViaturaCadastroDTO dto) {
+        try {
+            // Tenta realizar o cadastro blindado no Service
+            Viatura vtr = adminService.cadastrar(id, dto);
+            return ResponseEntity.ok(vtr);
+        } catch (RuntimeException e) {
+            // Se cair aqui, é porque o Service barrou a Placa, Chassi ou Prefixo repetido
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
+
     @GetMapping
     public ResponseEntity<List<Viatura>> listar() {
         return ResponseEntity.ok(adminService.listarTodas());
     }
 
-    /* * --- DOCUMENTAÇÃO DO VIATURA_ADMIN_CONTROLLER ---
+    /* * --- DOCUMENTAÇÃO DO VIATURA_ADMIN_CONTROLLER (BLINDADO) ---
      * 1. O QUE FAZ: Provê as ferramentas de gestão para o administrador do sistema.
-     * 2. FLUXO OPERACIONAL: Permite completar o cadastro de viaturas detectadas automaticamente,
-     * inserindo dados civis como placa, chassi e prefixo operacional.
-     * 3. INTEGRAÇÃO: Utiliza o DTO de cadastro para validar os dados antes de persistir no banco,
-     * garantindo que nenhuma viatura fique com informações incompletas na base de dados.
+     * 2. TRATAMENTO DE CONFLITOS: Implementa um bloco try-catch para interceptar exceções
+     * de negócio (duplicidade) e retornar o status HTTP 409 (Conflict) ao usuário.
+     * 3. FLUXO OPERACIONAL: Gerencia o batismo de ativos vindo do radar, convertendo
+     * o sinal de hardware em uma unidade operacional oficial com dados únicos.
+     * 4. SEGURANÇA DE DADOS: Garante que o Front-end receba mensagens claras de erro
+     * caso o administrador tente cadastrar um ativo que já existe na base de dados.
      */
 }
